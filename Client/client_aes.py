@@ -7,19 +7,16 @@ import os
 AES_KEY = b'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x20'  # Example key
 
 def read_file(path):
-    """
-    Reads the content of a text file given its path.
-    """
     with open(path, 'r', encoding='utf-8') as file:
         content = file.read()
     return content
 
+
+# Encrypts data using AES encryption in CBC mode with PKCS7 padding.
+# Returns IV + encrypted data.
 def aes_encrypt(data, key):
-    """
-    Encrypts data using AES encryption in CBC mode with PKCS7 padding.
-    Returns IV + encrypted data.
-    """
-    iv = os.urandom(16)  # 128-bit IV for AES
+
+    iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
     
@@ -33,18 +30,13 @@ def aes_encrypt(data, key):
     # Return IV + encrypted data
     return iv + encrypted_data
 
+# Reads the content of the input file, encrypts it, and returns the encrypted content.
 def encrypt_file_content(input_path):
-    """
-    Reads the content of the input file, encrypts it, and returns the encrypted content.
-    """
-    # Read the content from the input file
     content = read_file(input_path).encode('utf-8')
-    
-    # Encrypt the content with AES
     encrypted_content = aes_encrypt(content, AES_KEY)
     
     return encrypted_content
 
 
-with open('Client/encrypted_content.bin', 'wb') as file:
-    file.write(encrypt_file_content('Client/quijote.txt'))
+# with open('Client/encrypted_content.bin', 'wb') as file:
+#     file.write(encrypt_file_content('Client/quijote.txt'))

@@ -32,9 +32,9 @@ def receive_encrypted_file(output_path, server_ip, server_port):
             print("Encrypted file received and saved to:", output_path)
 
 def main():
-    output_path = 'Server/encrypted_content_received.bin'  # Path to save the received encrypted file
-    server_ip = '192.168.100.10'  # Change to the server's IP address
-    server_port = 65432       # Server's port
+    output_path = 'Server/encrypted_content_received.bin'
+    server_ip = '192.168.100.10'
+    server_port = 65432
 
     receive_encrypted_file(output_path, server_ip, server_port)
 

@@ -8,7 +8,7 @@
 //sudo apt-get install libssl-dev
 //gcc -o aes_decryption aes_decryption.c -lcrypto
 
-// Static AES key (same as in Python client)
+// Static AES key (same as Python)
 unsigned char STATIC_AES_KEY[AES_KEY_SIZE] = {
     0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08,
     0x09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F, 0x10,
@@ -52,7 +52,6 @@ int aes_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *iv
 }
 
 int decrypt_message(unsigned char *ciphertext, int ciphertext_len, unsigned char *iv, unsigned char *output_plaintext) {
-    // Decrypt the ciphertext using the static AES key
     int decrypted_len = aes_decrypt(ciphertext, ciphertext_len, iv, output_plaintext);
     output_plaintext[decrypted_len] = '\0';  // Null-terminate the decrypted string
     return decrypted_len;
