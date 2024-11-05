@@ -52,7 +52,7 @@ int aes_decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *ke
 }
 
 int main() {
-    FILE *encrypted_file = fopen("Client/encrypted_content.bin", "rb");
+    FILE *encrypted_file = fopen("../Client/encrypted_content.bin", "rb");
     FILE *decrypted_file = fopen("input_decrypted.txt", "w");
 
     if (!encrypted_file || !decrypted_file) {
