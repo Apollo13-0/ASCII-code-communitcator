@@ -5,7 +5,10 @@ all: driver library_shared library_static servo_test install_lib
 
 # Compilar el driver
 driver:
+	sudo rmmod gpio_driver
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+	sudo insmod gpio_driver.ko
+	
 
 # Compilar la biblioteca compartida
 library_shared: servo_lib.o

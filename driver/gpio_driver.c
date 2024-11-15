@@ -10,7 +10,7 @@
 #define GPIO_SERVO 12         // Número de GPIO para el servo
 #define PWM_PERIOD 20000      // Periodo total de 20 ms (50 Hz)
 #define HEX_MAX 15            // Máximo valor hexadecimal (0xF)
-#define MIN_DUTY_CYCLE 500    // Duración del pulso para 0° (0x0)
+#define MIN_DUTY_CYCLE 700    // Duración del pulso para 0° (0x0)
 #define MAX_DUTY_CYCLE 2500   // Duración del pulso para 180° (0xF)
 
 static int servo_position = 0;     // Posición actual del servo (en hexadecimal)
