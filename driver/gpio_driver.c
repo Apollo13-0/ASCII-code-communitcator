@@ -8,74 +8,78 @@
 #include <linux/device.h>
 
 #define GPIO_SERVO 12         // Número de GPIO para el servo
-#define PWM_0_DEGREES 500     // Duración del pulso para 0°
-#define PWM_90_DEGREES 1500   // Duración del pulso para 90°
-#define PWM_180_DEGREES 2500  // Duración del pulso para 180°
 #define PWM_PERIOD 20000      // Periodo total de 20 ms (50 Hz)
+#define HEX_MAX 15            // Máximo valor hexadecimal (0xF)
+#define MIN_DUTY_CYCLE 500    // Duración del pulso para 0° (0x0)
+#define MAX_DUTY_CYCLE 2500   // Duración del pulso para 180° (0xF)
 
-static int servo_angle = 0;         // Ángulo inicial
-static int major_number;            // Número mayor asignado dinámicamente
-static struct class *servo_class;   // Estructura para la clase del dispositivo
-static struct device *servo_device; // Estructura para el dispositivo
+static int servo_position = 0;     // Posición actual del servo (en hexadecimal)
+static int major_number;           // Número mayor asignado dinámicamente
+static struct class *servo_class;  // Estructura para la clase del dispositivo
+static struct device *servo_device;// Estructura para el dispositivo
 
-// Función para establecer la posición del servo
-static void set_servo_position(int angle) {
-    int duty_cycle;
+// Función para calcular el duty cycle en función de un valor hexadecimal
+static int calculate_duty_cycle(int hex_value) {
+    if (hex_value < 0 || hex_value > HEX_MAX) {
+        printk(KERN_WARNING "Valor hexadecimal inválido: %d\n", hex_value);
+        return -1;
+    }
+    return MIN_DUTY_CYCLE + ((MAX_DUTY_CYCLE - MIN_DUTY_CYCLE) * hex_value / HEX_MAX);
+}
 
-    if (angle == 0) {
-        duty_cycle = PWM_0_DEGREES;
-    } else if (angle == 90) {
-        duty_cycle = PWM_90_DEGREES;
-    } else if (angle == 180) {
-        duty_cycle = PWM_180_DEGREES;
-    } else if (angle >= 0 && angle <= 180) {
-        // Interpolación simple entre 0 y 180 grados
-        duty_cycle = PWM_0_DEGREES + ((angle * (PWM_180_DEGREES - PWM_0_DEGREES)) / 180);
-    } else {
-        printk(KERN_WARNING "Ángulo inválido: %d\n", angle);
-        return;
+// Función para mover el servo a una posición basada en un valor hexadecimal
+static void set_servo_position(int hex_value) {
+    int duty_cycle = calculate_duty_cycle(hex_value);
+    if (duty_cycle == -1) {
+        return; // No mover el servo si el valor es inválido
     }
 
-    // Almacenar el ángulo actual
-    servo_angle = angle;
-
-    // Generar el pulso PWM
     gpio_set_value(GPIO_SERVO, 1); // Alto
     udelay(duty_cycle);            // Duración del pulso
     gpio_set_value(GPIO_SERVO, 0); // Bajo
-    udelay(PWM_PERIOD - duty_cycle); // Completar el periodo de 20 ms
+    udelay(PWM_PERIOD - duty_cycle); // Completar el periodo
+
+    servo_position = hex_value;   // Actualizar la posición actual
+    printk(KERN_INFO "Servo movido a posición 0x%x\n", hex_value);
 }
 
-// Función de escritura para recibir el ángulo desde el espacio de usuario
+// Función de escritura para recibir el valor hexadecimal desde el espacio de usuario
 static ssize_t gpio_driver_write(struct file *file, const char __user *buffer, size_t len, loff_t *offset) {
-    int angle;
+    char hex_char;
 
-    if (copy_from_user(&angle, buffer, sizeof(int))) {
+    if (copy_from_user(&hex_char, buffer, sizeof(char))) {
         return -EFAULT;
     }
-    printk(KERN_INFO "Ángulo recibido: %d\n", angle);
-    set_servo_position(angle);
 
-    return sizeof(int);
+    if (hex_char >= '0' && hex_char <= '9') {
+        set_servo_position(hex_char - '0');
+    } else if (hex_char >= 'A' && hex_char <= 'F') {
+        set_servo_position(hex_char - 'A' + 10);
+    } else {
+        printk(KERN_WARNING "Caracter inválido: %c\n", hex_char);
+        return -EINVAL;
+    }
+
+    return sizeof(char);
 }
 
-// Función de lectura para devolver el ángulo actual del servo al espacio de usuario
+// Función de lectura para devolver la posición actual en hexadecimal
 static ssize_t gpio_driver_read(struct file *file, char __user *buffer, size_t len, loff_t *offset) {
-    char angle_str[10];
-    int angle_str_len;
+    char hex_position[3]; // Cadena para el valor hexadecimal actual (e.g., "0x0\n")
+    int hex_position_len;
 
     if (*offset != 0) {
         return 0; // Fin de la lectura
     }
 
-    angle_str_len = snprintf(angle_str, sizeof(angle_str), "%d\n", servo_angle);
+    hex_position_len = snprintf(hex_position, sizeof(hex_position), "0x%x\n", servo_position);
     
-    if (copy_to_user(buffer, angle_str, angle_str_len)) {
+    if (copy_to_user(buffer, hex_position, hex_position_len)) {
         return -EFAULT;
     }
 
-    *offset = angle_str_len; // Actualizar el offset para indicar que se ha leído todo
-    return angle_str_len;
+    *offset = hex_position_len; // Actualizar el offset
+    return hex_position_len;
 }
 
 // Configurar las operaciones del archivo del dispositivo
@@ -154,6 +158,6 @@ module_init(gpio_driver_init);
 module_exit(gpio_driver_exit);
 
 MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Tu Nombre");
-MODULE_DESCRIPTION("Driver para controlar un servo motor usando GPIO en una Raspberry Pi y leer el ángulo actual");
+MODULE_AUTHOR("TRIVIAL");
+MODULE_DESCRIPTION("Driver para controlar un servo con valores hexadecimales en Raspberry Pi");
 
