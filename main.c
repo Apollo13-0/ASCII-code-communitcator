@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "Server/server.h"  // For decrypt_message function declaration
 
-#define DECRYPTED_TEXT_SIZE 1024*1000
+#define DECRYPTED_TEXT_SIZE 1024*2000
 
 void test_connection() {
     // Buffer to store decrypted text
