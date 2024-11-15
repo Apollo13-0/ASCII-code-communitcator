@@ -2,6 +2,7 @@ from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import padding
 import os
+import re  # Para manipular texto y reemplazar caracteres
 
 # Static AES 256-bit (32 bytes) key
 AES_KEY = b'\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0A\x0B\x0C\x0D\x0E\x0F\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1A\x1B\x1C\x1D\x1E\x1F\x20'  # Example key
@@ -11,11 +12,17 @@ def read_file(path):
         content = file.read()
     return content
 
+# Removes special characters and replaces periods with spaces
+def clean_text_preserve_spaces(text):
+    # Replace periods with spaces
+    text = text.replace('.', ' ')
+    text = text.replace('\n', ' ')
+    # Remove all other non-alphanumeric characters except spaces
+    return re.sub(r'[^a-zA-Z0-9 ]', '', text)
 
 # Encrypts data using AES encryption in CBC mode with PKCS7 padding.
 # Returns IV + encrypted data.
 def aes_encrypt(data, key):
-
     iv = os.urandom(16)
     cipher = Cipher(algorithms.AES(key), modes.CBC(iv), backend=default_backend())
     encryptor = cipher.encryptor()
@@ -30,13 +37,10 @@ def aes_encrypt(data, key):
     # Return IV + encrypted data
     return iv + encrypted_data
 
-# Reads the content of the input file, encrypts it, and returns the encrypted content.
+# Reads the content of the input file, cleans special characters (except spaces), encrypts it, and returns the encrypted content.
 def encrypt_file_content(input_path):
-    content = read_file(input_path).encode('utf-8')
-    encrypted_content = aes_encrypt(content, AES_KEY)
+    content = read_file(input_path)
+    cleaned_content = clean_text_preserve_spaces(content)  # Clean the content
+    encrypted_content = aes_encrypt(cleaned_content.encode('utf-8'), AES_KEY)
     
     return encrypted_content
-
-
-# with open('Client/encrypted_content.bin', 'wb') as file:
-#     file.write(encrypt_file_content('Client/quijote.txt'))
