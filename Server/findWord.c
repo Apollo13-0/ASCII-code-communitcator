@@ -134,17 +134,37 @@ int main(int argc, char *argv[]) {
                 maxFreqGlobal = globalWordFreq[i].count;
             }
         }
-        for (int i = 0; i < globalWordCount; i++) {
-            if (globalWordFreq[i].count == maxFreqGlobal) {
-                printf("%s (Frecuencia: %d)\n", globalWordFreq[i].word, globalWordFreq[i].count);
+
+        int index;
+        for (index = 0; index < globalWordCount; index++) {
+            if (globalWordFreq[index].count == maxFreqGlobal) {
+                printf("%s (Frecuencia: %d)\n", globalWordFreq[index].word, globalWordFreq[index].count);
+                break;
             }
         }
 
         printf("Mostrando la palabra en el servo:\n");
-        for (int i = 0; i < strlen(globalWordFreq[i].word); i++) {
-            char hex_char = globalWordFreq[i].word[i] & 0xF; // Convertir a hexadecimal
-            buscarLetra(hex_char);
-            sleep(1); // Esperar 1 segundo entre letras
+        for (int i = 0; i < strlen(globalWordFreq[index].word); i++) {
+            // Convertir cada carácter a su representación hexadecimal
+            unsigned char hex_char = globalWordFreq[index].word[i];
+
+            // Extraer el nibble alto y bajo (4 bits cada uno)
+            char high_nibble = (hex_char >> 4) & 0xF; // Obtener los 4 bits más significativos
+            char low_nibble = hex_char & 0xF;         // Obtener los 4 bits menos significativos
+
+            // Convertir a caracteres ASCII ('0'-'F')
+            char high_char = (high_nibble < 10) ? ('0' + high_nibble) : ('A' + (high_nibble - 10));
+            char low_char = (low_nibble < 10) ? ('0' + low_nibble) : ('A' + (low_nibble - 10));
+
+            // Enviar el nibble alto al servo
+            printf("Enviando al servo: %c\n", high_char);
+            buscarLetra(high_char);
+            sleep(1);
+
+            // Enviar el nibble bajo al servo
+            printf("Enviando al servo: %c\n", low_char);
+            buscarLetra(low_char);
+            sleep(1);
         }
 
 
