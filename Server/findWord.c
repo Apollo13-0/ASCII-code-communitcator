@@ -2,7 +2,10 @@
 #include <string.h>
 #include <ctype.h>
 #include <mpi.h>
+#include <unistd.h>
 #include "server.h"
+#include "../driver/servo_lib.h"
+
 
 #define MAX_TEXT 50000
 #define MAX_WORDS 50000
@@ -136,6 +139,15 @@ int main(int argc, char *argv[]) {
                 printf("%s (Frecuencia: %d)\n", globalWordFreq[i].word, globalWordFreq[i].count);
             }
         }
+
+        printf("Mostrando la palabra en el servo:\n");
+        for (int i = 0; i < strlen(globalWordFreq[i].word); i++) {
+            char hex_char = globalWordFreq[i].word[i] & 0xF; // Convertir a hexadecimal
+            buscarLetra(hex_char);
+            sleep(1); // Esperar 1 segundo entre letras
+        }
+
+
     } else {
         // Enviar resultados al master
         MPI_Send(wordFreq, MAX_WORDS * sizeof(WordFreq), MPI_BYTE, 0, 0, MPI_COMM_WORLD);
