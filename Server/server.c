@@ -99,7 +99,6 @@ int receive_and_decrypt_message(unsigned char *decrypted_text, int decrypted_tex
     }
 
     decrypted_text[decrypted_len] = '\0';  // Null-terminate el texto desencriptado
-    printf("Decrypted message: %s\n", decrypted_text);
 
     close(new_socket);
     close(server_fd);

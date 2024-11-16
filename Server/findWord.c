@@ -2,6 +2,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <mpi.h>
+#include "server.h"
 
 #define MAX_TEXT 50000
 #define MAX_WORDS 50000
@@ -86,18 +87,13 @@ int main(int argc, char *argv[]) {
     WordFreq wordFreq[MAX_WORDS];
     int maxFreq = 0;
     int wordCount = 0;
-    FILE *file;
 
     // Master lee el archivo completo
     if (rank == 0) {
-        file = fopen("input_decrypted.txt", "r");
-        if (file == NULL) {
-            printf("Error al abrir el archivo.\n");
-            MPI_Abort(MPI_COMM_WORLD, 1);
+        int decrypted_len = receive_and_decrypt_message((unsigned char *)text, MAX_TEXT);
+        if (decrypted_len < 0) {
+            fprintf(stderr, "Failed to receive or decrypt the message.\n");
         }
-        size_t bytesRead = fread(text, 1, sizeof(text) - 1, file);
-        text[bytesRead] = '\0';
-        fclose(file);
     }
 
     // Broadcast del texto completo a todos los nodos
