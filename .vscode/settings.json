@@ -1,5 +1,7 @@
 {
     "files.associations": {
-        "aes_decryption.h": "c"
+        "aes_decryption.h": "c",
+        "unistd.h": "c",
+        "inet.h": "c"
     }
 }
