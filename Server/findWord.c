@@ -157,12 +157,10 @@ int main(int argc, char *argv[]) {
             char low_char = (low_nibble < 10) ? ('0' + low_nibble) : ('A' + (low_nibble - 10));
 
             // Enviar el nibble alto al servo
-            printf("Enviando al servo: %c\n", high_char);
             buscarLetra(high_char);
             sleep(1);
 
             // Enviar el nibble bajo al servo
-            printf("Enviando al servo: %c\n", low_char);
             buscarLetra(low_char);
             sleep(1);
         }
