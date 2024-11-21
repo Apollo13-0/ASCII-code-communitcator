@@ -1,0 +1,40 @@
+//Comandos(Clave para sudo: 1234)
+
+//Buscar driver
+lsmod | grep gpio
+
+//Remover Driver
+sudo rmmod bcm2835_gpiomem
+
+//Recuperar Driver Default se debe resetar
+
+//Compilar Driver nuevo y biblioteca
+make
+
+//Instalar Driver Nuevo
+sudo insmod gpio_driver.ko
+
+//Comprobar instalción
+lsmod | grep gpio
+
+//Comprobar prints driver
+sudo dmesg | tail
+
+//Desinstalar Driver actual
+sudo rmmod gpio_driver
+
+//Dar permisos
+sudo chmod 666 /dev/gpio_driver
+
+//Comprobar permisos
+sudo ls -l /dev/gpio_driver
+
+//Correr código con la bilbioteca servolib.a en C
+./servo_test
+
+//Correr código con la bilbioteca servolib.a en Python
+sudo python3 servo_test.py
+
+
+
+
