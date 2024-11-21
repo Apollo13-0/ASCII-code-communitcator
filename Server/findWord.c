@@ -7,13 +7,27 @@
 #include "../driver/servo_lib.h"
 
 
-#define MAX_TEXT 50000
+#define MAX_TEXT 500000
 #define MAX_WORDS 50000
+#define OUTPUT_FILE "decrypted_message.txt"
+
 
 typedef struct {
     char word[50];
     int count;
 } WordFreq;
+
+// Function to save the decrypted message to a file
+void save_to_file(const char *filename, const char *data) {
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Failed to open file");
+        return;
+    }
+    fprintf(file, "%s", data);
+    fclose(file);
+    printf("Decrypted message saved to %s\n", filename);
+}
 
 int isMonosilaba(const char *palabra) {
     int len = strlen(palabra);
@@ -97,6 +111,7 @@ int main(int argc, char *argv[]) {
         if (decrypted_len < 0) {
             fprintf(stderr, "Failed to receive or decrypt the message.\n");
         }
+        save_to_file(OUTPUT_FILE, (const char *) text);
     }
 
     // Broadcast del texto completo a todos los nodos
